@@ -65,7 +65,7 @@ async def startup_event():
     if "SSL_CERT_FILE" in os.environ:
         del os.environ["SSL_CERT_FILE"]
 
-    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+    GROQ_API_KEY = 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
     ml_models["llm"] = ChatGroq(
         groq_api_key=GROQ_API_KEY,
         model_name="meta-llama/llama-4-scout-17b-16e-instruct"
