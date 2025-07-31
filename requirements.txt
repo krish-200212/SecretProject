@@ -14,3 +14,4 @@ faiss-cpu
 pypdf
 python-docx
 unstructured
+google-generativeai
