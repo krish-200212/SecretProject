@@ -1,0 +1,5 @@
+# Groq LLM API key
+GROQ_API_KEY='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'
+GOOGLE_LLM_KEY='AIzaSyCw9sJkE9Rmf32s1-MU29mGIrh5_F79ASY'
+# HuggingFace token (for embeddings)
+GOOGLE_API_KEY="AIzaSyBqHb4m-rzslJt1s4oRlohuhfN4aFaQvMI"
