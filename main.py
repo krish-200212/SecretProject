@@ -85,14 +85,17 @@ app = FastAPI(title="HackRx RAG API")
 # Use the @app.on_event decorator for startup tasks
 @app.on_event("startup")
 async def startup_event():
-    
+    from langchain_google_genai import GoogleGenerativeAIEmbeddings
+    from google.generativeai import configure
+
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+    configure(api_key=GOOGLE_API_KEY)
+
     ml_models["embeddings"] = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 
-    # Unset the problematic environment variable if it exists to fix the SSL error
     if "SSL_CERT_FILE" in os.environ:
         del os.environ["SSL_CERT_FILE"]
 
-    # Set up moonshotai/kimi-k2-instruct LLM via Groq
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
     ml_models["llm"] = ChatGroq(
         groq_api_key=GROQ_API_KEY,
