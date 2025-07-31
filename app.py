@@ -8,6 +8,8 @@ import time
 import json
 import warnings
 import hashlib
+from contextlib import asynccontextmanager
+
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 from fastapi import FastAPI
@@ -52,24 +54,26 @@ class GoogleGenAIEmbedder(Embeddings):
 
 # --------------------- FastAPI Setup ---------------------
 ml_models = {}
-app = FastAPI(title="HackRx RAG API")
 
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
     configure(api_key=GOOGLE_API_KEY)
 
-    # ✅ Replaced default embeddings with custom one
     ml_models["embeddings"] = GoogleGenAIEmbedder()
 
     if "SSL_CERT_FILE" in os.environ:
         del os.environ["SSL_CERT_FILE"]
 
-    GROQ_API_KEY = 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
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
     ml_models["llm"] = ChatGroq(
         groq_api_key=GROQ_API_KEY,
         model_name="meta-llama/llama-4-scout-17b-16e-instruct"
     )
+
+    yield
+
+app = FastAPI(title="HackRx RAG API", lifespan=lifespan)
 
 # --------------------- Request/Response Models ---------------------
 class QARequest(BaseModel):
@@ -151,7 +155,6 @@ async def hackrx_run(request: QARequest):
         response = await loop.run_in_executor(None, retrieval_chain.invoke, {"input": q})
         return trim_answer(response['answer'])
 
-    # Process in batches
     batch_size = 30
     all_answers = []
     for i in range(0, len(request.questions), batch_size):
@@ -162,6 +165,5 @@ async def hackrx_run(request: QARequest):
             await asyncio.sleep(60)
     return QAResponse(answers=all_answers)
 
-# --------------------- Local Run ---------------------
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=8000)
