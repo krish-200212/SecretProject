@@ -88,18 +88,18 @@ async def startup_event():
     from langchain_google_genai import GoogleGenerativeAIEmbeddings
     from google.generativeai import configure
 
-    # ✅ Explicitly configure with your API key
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
     configure(api_key=GOOGLE_API_KEY)
 
-    # ✅ This now works using the configured API key
-    ml_models["embeddings"] = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    # ✅ Pass the API key explicitly here
+    ml_models["embeddings"] = GoogleGenerativeAIEmbeddings(
+        model="models/embedding-001",
+        google_api_key=GOOGLE_API_KEY
+    )
 
-    # ✅ Optional: Remove SSL cert env if it causes issues
     if "SSL_CERT_FILE" in os.environ:
         del os.environ["SSL_CERT_FILE"]
 
-    # ✅ Initialize LLM with Groq
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
     ml_models["llm"] = ChatGroq(
         groq_api_key=GROQ_API_KEY,
